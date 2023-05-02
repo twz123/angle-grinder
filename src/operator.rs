@@ -21,6 +21,7 @@ pub(crate) mod fields;
 pub(crate) mod limit;
 pub(crate) mod max;
 pub(crate) mod min;
+pub(crate) mod unescape;
 // public for benchmarks
 pub mod parse;
 pub(crate) mod percentile;

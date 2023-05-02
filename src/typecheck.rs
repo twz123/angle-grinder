@@ -3,7 +3,7 @@ use crate::errors::ErrorBuilder;
 use crate::lang;
 use crate::operator::{
     average, count, count_distinct, expr, fields, limit, max, min, parse, percentile, split, sum,
-    timeslice, total, where_op,
+    timeslice, total, unescape, where_op,
 };
 use crate::{funcs, operator};
 use thiserror::Error;
@@ -334,6 +334,13 @@ impl TypeCheck<Box<dyn operator::OperatorBuilder + Send + Sync>>
             lang::InlineOperator::FieldExpression { value, name } => Ok(Box::new(
                 fields::FieldExpressionDef::new(value.type_check(error_builder)?, name),
             )),
+            lang::InlineOperator::Unescape { from, as_ } => {
+                let from = match from {
+                    Some(input_column) => Some(input_column.type_check(error_builder)?),
+                    None => None,
+                };
+                Ok(Box::new(unescape::Unescape { from, as_ }))
+            }
         }
     }
 }

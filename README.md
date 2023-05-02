@@ -13,7 +13,7 @@ Angle grinder can process well above 1M rows per second (simple pipelines as hig
 * [Query Syntax Overview](#query-syntax)
 * [Operators](#operators)
     * Parsers: [JSON](#json) [logfmt](#logfmt) [split](#split) [generic](#parse)
-    * Misc: [Add/remove fields](#fields) [limit](#limit) [timeslice](#timeslice) [where](#where)
+    * Misc: [Add/remove fields](#fields) [limit](#limit) [timeslice](#timeslice) [where](#where) [unescape](#unescape)
     * Aggregators: [count](#count) [sum](#sum) [min](#min) [max](#max) [percentile](#percentile) [sort](#sort) [total](#total) [count distinct](#count-distinct)
 * [Output Control](#rendering)
 ## Installation
@@ -246,6 +246,19 @@ Note that `None == None`, so a row where both the left and right sides match a n
 ```agrind
 * | json | where url != "/hostname"
 ```
+
+##### Unescape
+`unescape [from <expr>] as <ident>`: Unescapes [C escape sequences].
+
+*Examples*
+```agrind
+* | json | unescape as printable
+```
+```agrind
+* | json | unescape from raw as printable
+```
+
+[C escape sequences]: https://en.wikipedia.org/wiki/Escape_sequences_in_C
 
 ##### Limit
 `limit #`: Limit the number of rows to the given amount.  If the number is positive, only the

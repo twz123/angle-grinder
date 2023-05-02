@@ -1,0 +1,7 @@
+query = "* | logfmt | unescape from foo as foo"
+input = """
+foo="bar\\tbaz"
+"""
+output = """
+[foo=bar	baz]
+"""

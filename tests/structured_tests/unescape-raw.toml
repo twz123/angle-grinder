@@ -1,0 +1,5 @@
+query = "* | unescape as foo"
+input = "bar\\tbaz"
+output = """
+[foo=bar	baz]
+"""

@@ -1,0 +1,12 @@
+query = "* | unescape from foo"
+input = ""
+output = ""
+error = """
+error: expecting `unescape [from <expr>] as <ident>`
+  |
+1 | * | unescape from foo
+  |     ^^^^^^^^^^^^^^^^^
+  |
+Error: Failed to parse query
+"""
+succeeds = false

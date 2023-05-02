@@ -52,6 +52,7 @@ pub const VALID_INLINE: &[&str] = &[
     "where",
     "split",
     "timeslice",
+    "unescape",
 ];
 
 lazy_static! {
@@ -496,6 +497,10 @@ pub enum InlineOperator {
     FieldExpression {
         value: Expr,
         name: String,
+    },
+    Unescape {
+        from: Option<Expr>,
+        as_: String,
     },
 }
 
@@ -1367,6 +1372,31 @@ fn pct(input: Span) -> IResult<Span, Positioned<AggregateFunction>> {
     .parse(input)
 }
 
+fn unescape(input: Span) -> IResult<Span, Positioned<InlineOperator>> {
+    let unescape = tag("unescape").precedes(multispace1.or(end_of_query));
+    let params = |params_input| {
+        let from = tag("from").precedes(multispace1).precedes(expr);
+        let as_ = tag("as").precedes(multispace1).precedes(ident);
+        let mut params = tuple((opt(from.and(multispace1).map(|(from, _)| from)), as_));
+
+        let parsed = params.parse(params_input);
+        if parsed.is_err() {
+            input
+                .extra
+                .report_error_for("expecting `unescape [from <expr>] as <ident>`")
+                .with_code_range(input.to_sync_point(), "")
+                .send_report();
+        }
+        parsed
+    };
+
+    let unescape = unescape
+        .precedes(params)
+        .map(|(from, as_)| InlineOperator::Unescape { from, as_ });
+
+    with_pos(unescape).parse(input)
+}
+
 pub fn with_pos<'a, O, E: ParseError<Span<'a>>, F>(
     mut f: F,
 ) -> impl FnMut(Span<'a>) -> IResult<Span<'a>, Positioned<O>, E>
@@ -1559,7 +1589,7 @@ fn parse_operators(input: Span) -> IResult<Span, Vec<Operator>> {
     });
 
     let inline_opers = alt((
-        parse, json, logfmt, fields, limit, split, timeslice, total, wher,
+        parse, json, logfmt, fields, limit, split, timeslice, total, wher, unescape,
     ))
     .map(Operator::Inline);
 
